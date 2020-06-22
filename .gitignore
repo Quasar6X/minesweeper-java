@@ -1,0 +1,8 @@
+.gitignore
+.idea
+out
+src/META-INF
+mine.ico
+mine2.gif
+minesweeper.iml
+q6ms_config.xml
