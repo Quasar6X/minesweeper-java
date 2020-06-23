@@ -33,6 +33,7 @@ public class Main {
     private static final JRadioButtonMenuItem intermediate = new JRadioButtonMenuItem(Field.INTERMEDIATE);
     private static final JRadioButtonMenuItem expert = new JRadioButtonMenuItem(Field.EXPERT);
     private static final JButton playPause = new JButton("\u25B6");
+    private static final Color flagTileColor = new Color(255, 195, 36);
 
     /**
      * Necessary boolean for the {@link #clockTick()} method.
@@ -194,15 +195,15 @@ public class Main {
                         if (clockRun)
                             if (e.getButton() == MouseEvent.BUTTON3) {
                                 MatrixJButton btn = (MatrixJButton)e.getSource();
-                                int x = btn.getRow();
-                                int y = btn.getCol();
-                                if (Field.getTileAt(x, y).isHidden())
+                                if (Field.getTileAt(btn.getRow(), btn.getCol()).isHidden())
                                     if(btn.isEnabled()) {
                                         if (btn.getIcon() == null) {
                                             btn.setIcon(createIcon("/quasar6/main/images/flag.gif", "flag"));
+                                            btn.setBackground(flagTileColor);
                                             ++flagsPlaced;
                                         } else {
                                             btn.setIcon(null);
+                                            btn.setBackground(Color.DARK_GRAY);
                                             --flagsPlaced;
                                         }
                                         flagsLabel.setText(Integer.toString(flagsPlaced));
@@ -343,6 +344,9 @@ public class Main {
                     matrixBtn.setBackground(Color.GRAY);
                 }
                 matrixBtn.setIcon(buttonFlagOnPause.get(new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol())));
+                for (Map.Entry<Map.Entry<Integer, Integer>, ImageIcon> entry : buttonFlagOnPause.entrySet()) {
+                    buttons[entry.getKey().getKey()][entry.getKey().getValue()].setBackground(flagTileColor);
+                }
                 matrixBtn.setEnabled(true);
             }
             btn.setText("\u23F8");
@@ -360,6 +364,7 @@ public class Main {
                     if ("flag".equals(((ImageIcon)matrixBtn.getIcon()).getDescription())) {
                         Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                         buttonFlagOnPause.put(key, (ImageIcon)matrixBtn.getIcon());
+                        matrixBtn.setBackground(Color.DARK_GRAY);
                         matrixBtn.setIcon(null);
                     }
                 }
