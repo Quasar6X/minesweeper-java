@@ -103,37 +103,47 @@ public final class Field {
     }
 
     /**
-     * This method initializes the field, the sizeX and sizeY variables.
-     * After that, it calls {@link #setMinesOnRandomPos(int)} and {@link #calculateTiles()}.
-     * This must be called at least once, otherwise the game state will be illegal.
+     * Generates the mine field based on the difficulty.
+     * This or {@link #customGenerate(int, int, int)} must be called at least once,
+     * otherwise the game state will be illegal.
      *
      * @param difficulty  The difficulty to generate. Valid values: Beginner, Intermediate, Expert
-     * @throws IllegalArgumentException if the parameter is not correct.
+     * @throws IllegalArgumentException if the difficulty is not correct.
      */
     public static void generate(String difficulty)
     {
-        int mines;
         if (difficulty == null || !BEGINNER.equals(difficulty) && !INTERMEDIATE.equals(difficulty) && !EXPERT.equals(difficulty))
             throw new IllegalArgumentException("Difficulty cannot be null and must be one of the following: Beginner, Intermediate, Expert");
-        if (BEGINNER.equals(difficulty)) {
-            mines = 10;
-            sizeX = 9;
-            sizeY = 9;
-        }
-        else if (INTERMEDIATE.equals(difficulty)) {
-            mines = 40;
-            sizeX = 16;
-            sizeY = 16;
-        } else {
-            mines = 99;
-            sizeX = 16;
-            sizeY = 30;
-        }
+        if (BEGINNER.equals(difficulty))
+            customGenerate(9, 9, 10);
+        else if (INTERMEDIATE.equals(difficulty))
+            customGenerate(16, 16, 40);
+        else
+            customGenerate(16, 30, 99);
+    }
+
+    /**
+     * This method initializes the field, the sizeX and sizeY variables.
+     * After that, it calls {@link #setMinesOnRandomPos(int)} and {@link #calculateTiles()}.
+     *
+     * @param rows the amount of rows to generate
+     * @param cols the amount of columns to generate
+     * @param mines the amount of mines to place on the field
+     * @throws IllegalArgumentException if rows > 24 or cols > 30 or if there are more mines than Tiles
+     */
+    public static void customGenerate(int rows, int cols, int mines)
+    {
+        if (mines > rows * cols || mines < 10)
+            throw new IllegalArgumentException("Can't place more mines than Tiles!");
+        if (rows > 24 || cols > 30 || rows < 9 || cols < 9)
+            throw new IllegalArgumentException("Provided size too big!");
+        sizeX = rows;
+        sizeY = cols;
         field = new Tile[sizeX][sizeY];
-        for (int i = 0; i < sizeX; i++) {
+        for (int i = 0; i < sizeX; i++)
             for (int j = 0; j < sizeY; j++)
                 field[i][j] = new Tile();
-        }
+
         setMinesOnRandomPos(mines);
         calculateTiles();
     }
