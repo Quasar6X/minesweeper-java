@@ -7,7 +7,7 @@ import javax.swing.*;
  * This JButton stores its matrix position.
  * It is also immutable.
  */
-public class MatrixJButton extends JButton {
+public final class MatrixJButton extends JButton {
 
     private final int row;
     private final int col;
