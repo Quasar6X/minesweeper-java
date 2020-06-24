@@ -84,16 +84,15 @@ public class Main {
 
     /**
      * Instance of this class.
+     * Vulnerable to reflection.
      * {@link #getInstance()}
      */
-    private static Main instance = null;
+    private static final Main instance = new Main();
 
     /**
      * @return the single instance of this class
      */
     public static Main getInstance() {
-        if (instance == null)
-            instance = new Main();
         return instance;
     }
 
@@ -202,7 +201,6 @@ public class Main {
                 buttons[i][j].setBackground(hiddenTileColor);
                 buttons[i][j].setForeground(Color.BLACK);
                 buttons[i][j].setFont(new Font("Segoe", Font.PLAIN, 20));
-                buttons[i][j].getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "none");
                 buttons[i][j].setPreferredSize(new Dimension(45, 45));
                 buttons[i][j].setFocusable(false);
                 buttons[i][j].addActionListener(this::onPress);
