@@ -16,12 +16,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Singleton class for making the GUI.
- */
+/** Singleton class for making the GUI. */
 public class Main {
 
+    /** Amount of flags currently placed. */
     private static int flagsPlaced = 0;
+
+    ////////////////////////////////Swing components start////////////////////////////////
     private static final JFrame app = new JFrame("Minesweeper by Quasar6");
     private static final JMenuBar bar = new JMenuBar();
     private static final JPanel clockPanel = new JPanel();
@@ -32,8 +33,12 @@ public class Main {
     private static final JRadioButtonMenuItem beginner = new JRadioButtonMenuItem(Field.BEGINNER);
     private static final JRadioButtonMenuItem intermediate = new JRadioButtonMenuItem(Field.INTERMEDIATE);
     private static final JRadioButtonMenuItem expert = new JRadioButtonMenuItem(Field.EXPERT);
+    private static final JCheckBoxMenuItem sounds = new JCheckBoxMenuItem("Sounds");
     private static final JButton playPause = new JButton("\u25B6");
-    private static final Color flagTileColor = new Color(255, 195, 36);
+    private static final Color flagTileColor = new Color(79, 130, 66);
+    private static final Color hiddenTileColor = Color.DARK_GRAY;
+    private static final Color revealedTileColor = Color.GRAY;
+    ////////////////////////////////Swing components end//////////////////////////////////
 
     /**
      * Necessary boolean for the {@link #clockTick()} method.
@@ -43,7 +48,7 @@ public class Main {
     private static final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
-     * These two maps store the button values and the flag icons;
+     * These two maps store the button values and the flag icons.
      * Keys are map entries with the coordinates of the button in the matrix.
      * {@link #buttonFlagOnPause}
      */
@@ -57,10 +62,29 @@ public class Main {
      * {@code time[2]} = seconds
      */
     private static int[] time;
+
+    /** Matrix containing the buttons for the field.*/
     private static MatrixJButton[][] buttons;
+
+    /** The current difficulty generated. */
     private static String difficulty;
+
+    /**
+     * When set to {@code true} the timer Thread can run,
+     * when set to false it terminates that Thread.
+     */
     private static boolean clockRun = false;
+
+    /**
+     * String representing the clock.
+     * This is needed for the popup windows.
+     */
     private static String timeScore = "00:00:00";
+
+    /**
+     * Instance of this class.
+     * {@link #getInstance()}
+     */
     private static Main instance = null;
 
     /**
@@ -74,7 +98,7 @@ public class Main {
 
     /**
      * Construct the GUI windows and set it's parameters.
-     * {@throws RuntimeException}
+     * @throws RuntimeException if you try to instantiate it
      */
     private Main()
     {
@@ -94,6 +118,7 @@ public class Main {
         app.setResizable(false);
         final JMenu diffMenu = new JMenu("Difficulty");
         final ButtonGroup radios = new ButtonGroup();
+        final JMenu soundMenu = new JMenu("Sounds");
         final JButton help = new JButton("Help");
         help.setOpaque(true);
         help.setContentAreaFilled(false);
@@ -115,10 +140,13 @@ public class Main {
         radios.add(beginner);
         radios.add(intermediate);
         radios.add(expert);
+        sounds.setSelected(true);
         diffMenu.add(beginner);
         diffMenu.add(intermediate);
         diffMenu.add(expert);
+        soundMenu.add(sounds);
         bar.add(diffMenu);
+        bar.add(soundMenu);
         bar.add(help);
         app.setJMenuBar(bar);
         clockPanel.add(flagsLabel);
@@ -144,24 +172,13 @@ public class Main {
         clockLabel.setFont(new Font("Segoe", Font.BOLD, 34));
         flagsLabel.setFont(new Font("Segoe", Font.BOLD, 34));
         playPause.setFont(new Font("Segoe", Font.PLAIN, 20));
-        playPause.setBackground(Color.DARK_GRAY);
+        playPause.setBackground(hiddenTileColor);
         playPause.setForeground(Color.RED);
         playPause.setFocusable(false);
         clockLabel.setForeground(Color.RED);
         flagsLabel.setForeground(Color.RED);
         clockPanel.setBackground(Color.BLACK);
         app.setVisible(true);
-        bar.setVisible(true);
-        help.setVisible(true);
-        expert.setVisible(true);
-        beginner.setVisible(true);
-        diffMenu.setVisible(true);
-        playPause.setVisible(true);
-        clockLabel.setVisible(true);
-        flagsLabel.setVisible(true);
-        clockPanel.setVisible(true);
-        buttonPanel.setVisible(true);
-        intermediate.setVisible(true);
     }
 
     /**
@@ -181,7 +198,7 @@ public class Main {
         for (int i = 0; i < Field.getSizeX(); i++) {
             for (int j = 0; j < Field.getSizeY(); j++) {
                 buttons[i][j] = new MatrixJButton(i, j);
-                buttons[i][j].setBackground(Color.DARK_GRAY);
+                buttons[i][j].setBackground(hiddenTileColor);
                 buttons[i][j].setForeground(Color.BLACK);
                 buttons[i][j].setFont(new Font("Segoe", Font.PLAIN, 20));
                 buttons[i][j].getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "none");
@@ -197,13 +214,15 @@ public class Main {
                                 MatrixJButton btn = (MatrixJButton)e.getSource();
                                 if (Field.getTileAt(btn.getRow(), btn.getCol()).isHidden())
                                     if(btn.isEnabled()) {
+                                        if (sounds.isSelected())
+                                            playAudio(getClass().getResourceAsStream("/quasar6/main/sound/flag.wav"));
                                         if (btn.getIcon() == null) {
                                             btn.setIcon(createIcon("/quasar6/main/images/flag.gif", "flag"));
                                             btn.setBackground(flagTileColor);
                                             ++flagsPlaced;
                                         } else {
                                             btn.setIcon(null);
-                                            btn.setBackground(Color.DARK_GRAY);
+                                            btn.setBackground(hiddenTileColor);
                                             --flagsPlaced;
                                         }
                                         flagsLabel.setText(Integer.toString(flagsPlaced));
@@ -214,6 +233,8 @@ public class Main {
                 buttonPanel.add(buttons[i][j]);
             }
         }
+        clockPanel.validate();
+        buttonPanel.validate();
         app.setPreferredSize(new Dimension(Field.getSizeY() * 45 + app.getInsets().left + app.getInsets().right,
                 Field.getSizeX() * 45 + clockPanel.getHeight() + bar.getHeight() + app.getInsets().top + app.getInsets().bottom));
         app.pack();
@@ -242,9 +263,11 @@ public class Main {
         if (!Field.getTileAt(x, y).isHidden())
             return;
         if (!Field.getTileAt(x, y).isMine()) {
+            if (sounds.isSelected())
+                playAudio(getClass().getResourceAsStream("/quasar6/main/sound/click.wav"));
             if (Field.getTileAt(x, y).getRank() != 0) {
                 Field.getTileAt(x, y).setHidden(false);
-                btn.setBackground(Color.GRAY);
+                btn.setBackground(revealedTileColor);
                 btn.setForeground(Field.getTileAt(x, y).getColor());
                 btn.setText(Integer.toString(Field.getTileAt(x, y).getRank()));
             } else {
@@ -255,7 +278,7 @@ public class Main {
                             if (buttons[i][j].getIcon() != null)
                                 if ("flag".equals(((ImageIcon)buttons[i][j].getIcon()).getDescription()))
                                     buttons[i][j].setIcon(null);
-                            buttons[i][j].setBackground(Color.GRAY);
+                            buttons[i][j].setBackground(revealedTileColor);
                             if (Field.getTileAt(i, j).getRank() != 0) {
                                 buttons[i][j].setForeground(Field.getTileAt(i, j).getColor());
                                 buttons[i][j].setText(Integer.toString(Field.getTileAt(i, j).getRank()));
@@ -263,13 +286,14 @@ public class Main {
                         }
             }
         } else {
-            playAudio(getClass().getResourceAsStream("/quasar6/main/sound/loose.wav"));
+            if (sounds.isSelected())
+                playAudio(getClass().getResourceAsStream("/quasar6/main/sound/loose.wav"));
             clockRun = false;
             String correctFlags = Integer.toString(correctFlags());
-            revealMines("/quasar6/main/images/mine.gif", "mine");
+            revealMines();
             setOsTheme();
             int restart = JOptionPane.showConfirmDialog(app, "You have successfully blown yourself up under " + timeScore
-                    + "\nCorrect flags: " + correctFlags + "\nAnother game?", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    + "\nCorrect flags: " + correctFlags + " out of " + flagsPlaced + "\nAnother game?", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
             setMetalTheme();
             if (restart != 0) {
                 System.exit(0);
@@ -279,13 +303,14 @@ public class Main {
             }
         }
         if (Field.isWinningState()) {
-            playAudio(getClass().getResourceAsStream("/quasar6/main/sound/win.wav"));
+            if (sounds.isSelected())
+                playAudio(getClass().getResourceAsStream("/quasar6/main/sound/win.wav"));
             clockRun = false;
             String correctFlags = Integer.toString(correctFlags());
-            revealMines("/quasar6/main/images/flag.gif", "flag");
+            revealMines();
             setOsTheme();
             int restart = JOptionPane.showConfirmDialog(app, "You win!\n" + "You have solved the " + difficulty
-                    + " difficulty under " + timeScore + "\nCorrect flags: " + correctFlags + "\nAnother game?", "Winner", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    + " difficulty under " + timeScore + "\nCorrect flags: " + correctFlags + " out of " + flagsPlaced +  "\nAnother game?", "Winner", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
             setMetalTheme();
             if (restart != 0) {
                 System.exit(0);
@@ -341,7 +366,7 @@ public class Main {
                 MatrixJButton matrixBtn = (MatrixJButton)c;
                 if (!Field.getTileAt(matrixBtn.getRow(), matrixBtn.getCol()).isHidden()) {
                     matrixBtn.setText(buttonTextOnPause.get(new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol())));
-                    matrixBtn.setBackground(Color.GRAY);
+                    matrixBtn.setBackground(revealedTileColor);
                 }
                 matrixBtn.setIcon(buttonFlagOnPause.get(new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol())));
                 for (Map.Entry<Map.Entry<Integer, Integer>, ImageIcon> entry : buttonFlagOnPause.entrySet()) {
@@ -359,12 +384,12 @@ public class Main {
                     Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                     buttonTextOnPause.put(key, matrixBtn.getText());
                     matrixBtn.setText("");
-                    matrixBtn.setBackground(Color.DARK_GRAY);
+                    matrixBtn.setBackground(hiddenTileColor);
                 } else if (matrixBtn.getIcon() != null) {
                     if ("flag".equals(((ImageIcon)matrixBtn.getIcon()).getDescription())) {
                         Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                         buttonFlagOnPause.put(key, (ImageIcon)matrixBtn.getIcon());
-                        matrixBtn.setBackground(Color.DARK_GRAY);
+                        matrixBtn.setBackground(hiddenTileColor);
                         matrixBtn.setIcon(null);
                     }
                 }
@@ -436,9 +461,7 @@ public class Main {
         }
     }
 
-    /**
-     * Removes all buttons buttons from the field.
-     */
+    /** Removes all buttons buttons from the field. */
     private static void removeButtons()
     {
         buttons = null;
@@ -465,7 +488,7 @@ public class Main {
         for (int i = 0; i < Field.getSizeX(); i++)
             for (int j = 0; j < Field.getSizeY(); j++) {
                 buttons[i][j].setText("");
-                buttons[i][j].setBackground(Color.DARK_GRAY);
+                buttons[i][j].setBackground(hiddenTileColor);
                 buttons[i][j].setForeground(Color.BLACK);
                 if (buttons[i][j].getIcon() != null)
                     buttons[i][j].setIcon(null);
@@ -496,26 +519,19 @@ public class Main {
         return correctFlags;
     }
 
-    /**
-     * Reveals mines with the specified icon.
-     * When the player wins it is called with flag icons,
-     * otherwise with mine icons.
-     * @param path path to the image
-     * @param desc description of the image
-     */
-    private void revealMines(String path, String desc)
+    /** Reveals mines with the specified icon. */
+    private void revealMines()
     {
         for (int i = 0; i < Field.getSizeX(); i++)
             for (int j = 0; j < Field.getSizeY(); j++)
                 if (Field.getTileAt(i, j).isMine()) {
+                    buttons[i][j].setBackground(hiddenTileColor);
                     buttons[i][j].setText("");
-                    buttons[i][j].setIcon(createIcon(path, desc));
+                    buttons[i][j].setIcon(createIcon("/quasar6/main/images/mine.gif", "mine"));
                 }
     }
 
-    /**
-     * Sets the Look and Feel to the Swing default.
-     */
+    /** Sets the Look and Feel to the Swing default. */
     private static void setMetalTheme()
     {
         try {
@@ -525,9 +541,7 @@ public class Main {
         }
     }
 
-    /**
-     * Sets the Look and Feel to the OS default.
-     */
+    /** Sets the Look and Feel to the OS default. */
     private static void setOsTheme()
     {
         try {
@@ -553,9 +567,7 @@ public class Main {
         return null;
     }
 
-    /**
-     * @return image for the window icon
-     */
+    /** @return image for the window icon */
     private Image createIconForWindow() {
         ImageIcon imageIcon = createIcon("/quasar6/main/images/mine.gif", "mine");
         if (imageIcon != null)
@@ -563,9 +575,7 @@ public class Main {
         return null;
     }
 
-    /**
-     * Places the windows horizontally and vertically in the center.
-     */
+    /** Places the windows horizontally and vertically in the center. */
     private static void centerWindow()
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -576,7 +586,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Main app = Main.getInstance();
-        app.run(Field.BEGINNER);
+        Main ms = Main.getInstance();
+        ms.run(Field.BEGINNER);
     }
 }
