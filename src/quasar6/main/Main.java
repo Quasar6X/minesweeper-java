@@ -38,6 +38,7 @@ public class Main {
     private static final Color flagTileColor = new Color(79, 130, 66);
     private static final Color hiddenTileColor = Color.DARK_GRAY;
     private static final Color revealedTileColor = Color.GRAY;
+    private static final Color qmarkColor = new Color(0, 35, 102);
     ////////////////////////////////Swing components end//////////////////////////////////
 
     /**
@@ -220,10 +221,13 @@ public class Main {
                                             btn.setIcon(createIcon("/quasar6/main/images/flag.gif", "flag"));
                                             btn.setBackground(flagTileColor);
                                             ++flagsPlaced;
+                                        } else if (((ImageIcon)btn.getIcon()).getDescription().equals("flag")){
+                                            btn.setIcon(createIcon("/quasar6/main/images/qmark.gif", "qmark"));
+                                            btn.setBackground(qmarkColor);
+                                            --flagsPlaced;
                                         } else {
                                             btn.setIcon(null);
                                             btn.setBackground(hiddenTileColor);
-                                            --flagsPlaced;
                                         }
                                         flagsLabel.setText(Integer.toString(flagsPlaced));
                                     }
@@ -370,7 +374,10 @@ public class Main {
                 }
                 matrixBtn.setIcon(buttonFlagOnPause.get(new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol())));
                 for (Map.Entry<Map.Entry<Integer, Integer>, ImageIcon> entry : buttonFlagOnPause.entrySet()) {
-                    buttons[entry.getKey().getKey()][entry.getKey().getValue()].setBackground(flagTileColor);
+                    if ("flag".equals(entry.getValue().getDescription()))
+                        buttons[entry.getKey().getKey()][entry.getKey().getValue()].setBackground(flagTileColor);
+                    else
+                        buttons[entry.getKey().getKey()][entry.getKey().getValue()].setBackground(qmarkColor);
                 }
                 matrixBtn.setEnabled(true);
             }
@@ -386,7 +393,7 @@ public class Main {
                     matrixBtn.setText("");
                     matrixBtn.setBackground(hiddenTileColor);
                 } else if (matrixBtn.getIcon() != null) {
-                    if ("flag".equals(((ImageIcon)matrixBtn.getIcon()).getDescription())) {
+                    if ("flag".equals(((ImageIcon)matrixBtn.getIcon()).getDescription()) || "qmark".equals(((ImageIcon)matrixBtn.getIcon()).getDescription())) {
                         Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                         buttonFlagOnPause.put(key, (ImageIcon)matrixBtn.getIcon());
                         matrixBtn.setBackground(hiddenTileColor);
@@ -507,12 +514,14 @@ public class Main {
         for (int i = 0; i < Field.getSizeX(); i++) {
             for (int j = 0; j < Field.getSizeY(); j++) {
                 if (buttons[i][j].getIcon() != null) {
-                    ImageIcon icon = (ImageIcon) buttons[i][j].getIcon();
-                    if ("flag".equals(icon.getDescription()))
-                        if (Field.getTileAt(i, j).isMine())
+                    if (Field.getTileAt(i, j).isMine()) {
+                        ImageIcon icon = (ImageIcon) buttons[i][j].getIcon();
+                        if ("flag".equals(icon.getDescription()))
                             ++correctFlags;
-                        else
-                            buttons[i][j].setBackground(Color.red);
+                    } else {
+                        buttons[i][j].setBackground(Color.RED);
+                        buttons[i][j].setIcon(null);
+                    }
                 }
             }
         }
