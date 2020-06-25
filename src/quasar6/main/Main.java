@@ -15,6 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Singleton class for making the GUI. */
 public class Main {
@@ -216,11 +218,11 @@ public class Main {
                                         if (sounds.isSelected())
                                             playAudio(getClass().getResourceAsStream("/quasar6/main/sound/flag.wav"));
                                         if (btn.getIcon() == null) {
-                                            btn.setIcon(createIcon("/quasar6/main/images/flag.gif", "flag"));
+                                            btn.setIcon(createIcon("/quasar6/main/images/flag.gif"));
                                             btn.setBackground(flagTileColor);
                                             ++flagsPlaced;
                                         } else if (((ImageIcon)btn.getIcon()).getDescription().equals("flag")){
-                                            btn.setIcon(createIcon("/quasar6/main/images/qmark.gif", "qmark"));
+                                            btn.setIcon(createIcon("/quasar6/main/images/qmark.gif"));
                                             btn.setBackground(qmarkColor);
                                             --flagsPlaced;
                                         } else {
@@ -472,7 +474,6 @@ public class Main {
         buttons = null;
         buttonPanel.removeAll();
         app.revalidate();
-        app.repaint();
     }
 
     /**
@@ -534,7 +535,7 @@ public class Main {
                 if (Field.getTileAt(i, j).isMine()) {
                     buttons[i][j].setBackground(hiddenTileColor);
                     buttons[i][j].setText("");
-                    buttons[i][j].setIcon(createIcon("/quasar6/main/images/mine.gif", "mine"));
+                    buttons[i][j].setIcon(createIcon("/quasar6/main/images/mine.gif"));
                 }
     }
 
@@ -560,23 +561,26 @@ public class Main {
 
     /**
      * Creates an ImageIcon with the specified path
-     * and description if it exists, otherwise returns null.
+     * if the file exists, otherwise returns null.
+     * The description is the file name without the extension.
      * @param path path to the icon
-     * @param desc description of the icon
      * @return the ImageIcon or null
      */
-    private ImageIcon createIcon(String path, String desc)
+    private ImageIcon createIcon(String path)
     {
-        URL imgURL = getClass().getResource(path);
-        if (imgURL != null)
-            return new ImageIcon(imgURL, desc);
-        System.err.println("Couldn't find file: " + path);
+        Matcher matcher = Pattern.compile("(?<=/)[^/]+(?=\\.)").matcher(path);
+        if (matcher.find()) {
+            URL imgURL = getClass().getResource(path);
+            if (imgURL != null)
+                return new ImageIcon(imgURL, matcher.group());
+            System.err.println("Couldn't find file: " + path);
+        }
         return null;
     }
 
     /** @return image for the window icon */
     private Image createIconForWindow() {
-        ImageIcon imageIcon = createIcon("/quasar6/main/images/mine.gif", "mine");
+        ImageIcon imageIcon = createIcon("/quasar6/main/images/mine.gif");
         if (imageIcon != null)
             return imageIcon.getImage();
         return null;
