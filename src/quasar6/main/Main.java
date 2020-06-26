@@ -41,6 +41,7 @@ public class Main {
     private static final Color hiddenTileColor = Color.DARK_GRAY;
     private static final Color revealedTileColor = Color.GRAY;
     private static final Color qmarkColor = new Color(0, 35, 102);
+    private static Font defFont = new Font("Dialog", Font.PLAIN, 20);
     ////////////////////////////////Swing components end//////////////////////////////////
 
     /**
@@ -89,13 +90,13 @@ public class Main {
      * Vulnerable to reflection.
      * {@link #getInstance()}
      */
-    private static final Main instance = new Main();
+    private static final Main INSTANCE = new Main();
 
     /**
      * @return the single instance of this class
      */
     public static Main getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -104,8 +105,16 @@ public class Main {
      */
     private Main()
     {
-        if (instance != null)
+        if (INSTANCE != null)
             throw new RuntimeException("Singleton! Access this class through the getInstance() method");
+        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        for (String s : fonts) {
+            Font f = new Font(s, Font.PLAIN, 20);
+            if (f.canDisplayUpTo("\u23F1\u25B6\u23F8") == -1) {
+                defFont = f;
+                break;
+            }
+        }
         app.setIconImage(createIconForWindow());
         app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         final SpringLayout mainLayout = new SpringLayout();
@@ -171,9 +180,9 @@ public class Main {
             }
         });
         playPause.setEnabled(false);
-        clockLabel.setFont(new Font("Segoe", Font.BOLD, 34));
-        flagsLabel.setFont(new Font("Segoe", Font.BOLD, 34));
-        playPause.setFont(new Font("Segoe", Font.PLAIN, 20));
+        clockLabel.setFont(defFont.deriveFont(Font.BOLD, 34));
+        flagsLabel.setFont(defFont.deriveFont(Font.BOLD, 34));
+        playPause.setFont(defFont);
         playPause.setBackground(hiddenTileColor);
         playPause.setForeground(Color.RED);
         playPause.setFocusable(false);
@@ -202,7 +211,7 @@ public class Main {
                 buttons[i][j] = new MatrixJButton(i, j);
                 buttons[i][j].setBackground(hiddenTileColor);
                 buttons[i][j].setForeground(Color.BLACK);
-                buttons[i][j].setFont(new Font("Segoe", Font.PLAIN, 20));
+                buttons[i][j].setFont(defFont);
                 buttons[i][j].setPreferredSize(new Dimension(45, 45));
                 buttons[i][j].setFocusable(false);
                 buttons[i][j].addActionListener(this::onPress);
