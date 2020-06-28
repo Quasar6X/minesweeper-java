@@ -41,7 +41,7 @@ public class Main {
     private static final Color hiddenTileColor = Color.DARK_GRAY;
     private static final Color revealedTileColor = Color.GRAY;
     private static final Color qmarkColor = new Color(0, 35, 102);
-    private static Font defFont = new Font("Dialog", Font.PLAIN, 20);
+    private static Font defFont = new Font("Dialog", Font.PLAIN, 18);
     ////////////////////////////////Swing components end//////////////////////////////////
 
     /**
@@ -100,7 +100,7 @@ public class Main {
     }
 
     /**
-     * Construct the GUI windows and set it's parameters.
+     * Construct the GUI window and set it's parameters.
      * @throws RuntimeException if you try to instantiate it
      */
     private Main()
@@ -470,6 +470,10 @@ public class Main {
         try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn) ) {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
+            clip.addLineListener(event -> {
+                if (LineEvent.Type.STOP.equals(event.getType()))
+                    clip.close();
+            });
             clip.start();
         } catch (LineUnavailableException | IOException | IllegalArgumentException | UnsupportedAudioFileException exc) {
             System.err.println(exc.getMessage());

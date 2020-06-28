@@ -44,10 +44,10 @@ public final class Field {
         for (int i = 0; i < sizeX; i++)
             for (int j = 0; j < sizeY; j++)
                 if (field[i][j].isMine()) {
-                    Map.Entry<Integer, Integer> ij = new AbstractMap.SimpleImmutableEntry<>(i, j);
+                    var ij = new AbstractMap.SimpleImmutableEntry<>(i, j);
                     for (int k = Math.max(0, i - 1); k < Math.min(sizeX, i + 2); k++)
                         for (int l = Math.max(0, j - 1); l < Math.min(sizeY, j + 2); l++) {
-                            Map.Entry<Integer, Integer> kl = new AbstractMap.SimpleImmutableEntry<>(k, l);
+                            var kl = new AbstractMap.SimpleImmutableEntry<>(k, l);
                             if (!ij.equals(kl) && !field[k][l].isMine())
                                 field[k][l].setRank(field[k][l].getRank() + 1);
                         }
@@ -66,11 +66,11 @@ public final class Field {
         if (field[x][y].getRank() > 0)
             field[x][y].setHidden(false);
         else {
-            Map.Entry<Integer, Integer> xy = new AbstractMap.SimpleImmutableEntry<>(x, y);
+            var xy = new AbstractMap.SimpleImmutableEntry<>(x, y);
             field[x][y].setHidden(false);
             for (int i = Math.max(0, x - 1); i < Math.min(sizeX, x + 2); i++)
                 for (int j = Math.max(0, y - 1); j < Math.min(sizeY, y + 2); j++) {
-                    Map.Entry<Integer, Integer> ij = new AbstractMap.SimpleImmutableEntry<>(i, j);
+                    var ij = new AbstractMap.SimpleImmutableEntry<>(i, j);
                     if (!ij.equals(xy) && field[i][j].isHidden()) {
                         field[i][j].setHidden(false);
                         if (field[i][j].getRank() == 0)
