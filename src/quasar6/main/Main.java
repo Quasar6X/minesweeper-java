@@ -450,7 +450,6 @@ public class Main {
                         time[1] = 0;
                         time[2] = 0;
                     }
-
                 }, 0, 1, TimeUnit.SECONDS);
             });
             clockThread.start();
