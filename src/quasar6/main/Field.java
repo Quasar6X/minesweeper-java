@@ -136,7 +136,7 @@ public final class Field {
         if (mines > rows * cols || mines < 10)
             throw new IllegalArgumentException("Can't place more mines than Tiles!");
         if (rows > 24 || cols > 30 || rows < 9 || cols < 9)
-            throw new IllegalArgumentException("Provided size too big!");
+            throw new IllegalArgumentException("Provided size too big or too small!");
         sizeX = rows;
         sizeY = cols;
         field = new Tile[sizeX][sizeY];
@@ -155,14 +155,14 @@ public final class Field {
      */
     private static void setMinesOnRandomPos(int mines)
     {
-        List<Map.Entry<Integer, Integer>> cache = new ArrayList<>();
+        var cache = new ArrayList<>();
         for (int i = 0; i < mines; i++) {
             int x = rand.nextInt(sizeX);
             int y = rand.nextInt(sizeY);
-            Map.Entry<Integer, Integer> pos = new AbstractMap.SimpleImmutableEntry<>(x, y);
-            if (cache.contains(pos)) {
+            var pos = new AbstractMap.SimpleImmutableEntry<>(x, y);
+            if (cache.contains(pos))
                 ++mines;
-            } else {
+            else {
                 cache.add(pos);
                 field[x][y].setRank(9);
             }
@@ -173,15 +173,14 @@ public final class Field {
      * Debug method for counting the generated mines.
      */
     @SuppressWarnings("unused")
-    public static void calcMines()
+    public static void countMines()
     {
         int count = 0;
-        for (int i = 0; i < sizeX; i++) {
-            for (int j = 0; j < sizeY; j++) {
+        for (int i = 0; i < sizeX; i++)
+            for (int j = 0; j < sizeY; j++)
                 if (field[i][j].isMine())
                     ++count;
-            }
-        }
+
         System.out.println(count);
     }
 

@@ -250,6 +250,7 @@ public class Main {
         buttonPanel.validate();
         app.setPreferredSize(new Dimension(Field.getSizeY() * 45 + app.getInsets().left + app.getInsets().right,
                 Field.getSizeX() * 45 + clockPanel.getHeight() + bar.getHeight() + app.getInsets().top + app.getInsets().bottom));
+        app.revalidate();
         app.pack();
         centerWindow();
     }
@@ -265,7 +266,6 @@ public class Main {
             clockRun = true;
             playPause.setEnabled(true);
             playPause.setText("\u23F8");
-
             clockTick();
         }
         MatrixJButton btn = (MatrixJButton)e.getSource();
@@ -382,7 +382,7 @@ public class Main {
                     matrixBtn.setBackground(revealedTileColor);
                 }
                 matrixBtn.setIcon(buttonFlagOnPause.get(new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol())));
-                for (Map.Entry<Map.Entry<Integer, Integer>, ImageIcon> entry : buttonFlagOnPause.entrySet()) {
+                for (var entry : buttonFlagOnPause.entrySet()) {
                     if ("flag".equals(entry.getValue().getDescription()))
                         buttons[entry.getKey().getKey()][entry.getKey().getValue()].setBackground(flagTileColor);
                     else
@@ -397,13 +397,13 @@ public class Main {
             for (Component c : buttonPanel.getComponents()) {
                 MatrixJButton matrixBtn = (MatrixJButton)c;
                 if (!Field.getTileAt(matrixBtn.getRow(), matrixBtn.getCol()).isHidden()) {
-                    Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
+                    var key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                     buttonTextOnPause.put(key, matrixBtn.getText());
                     matrixBtn.setText("");
                     matrixBtn.setBackground(hiddenTileColor);
                 } else if (matrixBtn.getIcon() != null) {
                     if ("flag".equals(((ImageIcon)matrixBtn.getIcon()).getDescription()) || "qmark".equals(((ImageIcon)matrixBtn.getIcon()).getDescription())) {
-                        Map.Entry<Integer, Integer> key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
+                        var key = new AbstractMap.SimpleImmutableEntry<>(matrixBtn.getRow(), matrixBtn.getCol());
                         buttonFlagOnPause.put(key, (ImageIcon)matrixBtn.getIcon());
                         matrixBtn.setBackground(hiddenTileColor);
                         matrixBtn.setIcon(null);
