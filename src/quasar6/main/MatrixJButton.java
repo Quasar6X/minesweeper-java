@@ -41,22 +41,6 @@ public final class MatrixJButton extends JButton {
     }
 
     /**
-     * Compares the specified object with this button for equality.
-     * Returns {@code true} if the given object is also a {@link MatrixJButton}
-     * and the two buttons have the exact same row and column positions.
-     *
-     * @param o object to be compared for equality with this button
-     * @return {@code true} if the specified object is equal to this button
-     */
-    public boolean equals(Object o)
-    {
-        if (!(o instanceof MatrixJButton))
-            return false;
-        MatrixJButton b = (MatrixJButton)o;
-        return row == b.getRow() && col == b.getCol();
-    }
-
-    /**
      * Returns the String representation of this {@link MatrixJButton}
      * in the following form: "{row}_{col}". E.g. 1_3
      *

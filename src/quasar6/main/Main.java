@@ -420,7 +420,7 @@ public class Main {
      * This method runs the timer. It creates a new Thread and updates the JLabel every second.
      * A ScheduledExecutorService is used because Thread.sleep(1000) in a loop is not consistent.
      */
-    private void clockTick()
+    private static void clockTick()
     {
         if(!started.get()) {
             started.set(true);

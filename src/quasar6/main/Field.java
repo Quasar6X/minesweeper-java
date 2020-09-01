@@ -94,11 +94,10 @@ public final class Field {
         else
             mineCount = 99;
         int revealedTiles = 0;
-        for (int i = 0; i < sizeX; i++) {
+        for (int i = 0; i < sizeX; i++)
             for (int j = 0; j < sizeY; j++)
                 if (!field[i][j].isHidden())
                     ++revealedTiles;
-        }
         return revealedTiles == allTiles - mineCount;
     }
 
